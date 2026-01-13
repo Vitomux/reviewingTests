@@ -8,56 +8,44 @@ document.addEventListener("DOMContentLoaded", (event) => {
     });
     gsap.ticker.lagSmoothing(0);
 
-
     let flipAnimation = null;
     const originalBox = document.querySelector(".box");
-    const spaceSection = document.querySelector(".space");
+    const clonWrapper = document.querySelector(".clonWrapper");
 
-    if (originalBox && spaceSection) {
+    if (originalBox && clonWrapper) {
         // 1. Initial Setup
-        const rect = originalBox.getBoundingClientRect();
         const clonnedBox = originalBox.cloneNode(true);
-        const centerX = rect.left + rect.width / 2 + 60;
-        const centerY = rect.top + rect.height / 2 ;
 
-        gsap.set(clonnedBox, {
+        gsap.set(clonWrapper, {
             position: "fixed",
-            left : centerX - originalBox.offsetWidth / 2 + "px",
-            top: centerY - originalBox.offsetHeight + "6px",
-            width: "98px",
-            height: "98px",
+            width: "48px",
+            height: "48px",
             pointerEvents: "none",
             willChange: "transform",
             zIndex: 10,
         });
 
-        spaceSection.appendChild(clonnedBox);
+        clonWrapper.appendChild(clonnedBox);
         gsap.set(originalBox, { opacity: 0 });
 
-        // 2. Prepare the Flip State
-        // Capture state BEFORE the change
+        // 2. Preparar el Flip State
         const state = Flip.getState(clonnedBox);
-
-        // Make the change (the "end" state of the flip)
-        gsap.set(clonnedBox, {
-            left: 0,
-            top: 0,
+        // Hacer el cambio
+        gsap.set(clonWrapper, {
             width: "100%",
-            height: "100vh" // Assuming you want full screen
+            height: "100vh"
         });
-
-        // Create the timeline/animation but leave it paused
+        // Hacer animacion pero dejar pausada
         flipAnimation = Flip.from(state, {
             duration: 0.2,
             ease: "none",
             paused: true,
         });
-
-        // 3. ScrollTrigger to scrub the flipAnimation
+        // 3. ScrollTrigger para controlar flipAnimation
         ScrollTrigger.create({
             trigger: ".main",
             start: "top top",
-            end: ( ) => `+=${window.innerHeight * 1.2}`, // Adjust distance as needed
+            end: ( ) => `+=${window.innerHeight * 1.0}`, // Adjust distance as needed
             pin: true, // Often helpful for full-screen transitions
             scrub: true,
             onUpdate: (self) => {
@@ -66,11 +54,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // 2. Lógica de intercambio de opacidad
             if (self.progress >= 1) {
-        // Cuando llega al final: ocultamos el clon, mostramos el original
             gsap.set(clonnedBox, { opacity: 0 });
             gsap.set(originalBox, { opacity: 1 });
         } else {
-        // Mientras se hace scroll hacia arriba: revertimos el estado
             gsap.set(clonnedBox, { opacity: 1 });
             gsap.set(originalBox, { opacity: 0 });
         }
