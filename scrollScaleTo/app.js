@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const clonWrapper = document.querySelector(".clonWrapper");
 
     if (originalBox && clonWrapper) {
-        // 1. Initial Setup
+        // 1. Setup
         const clonnedBox = originalBox.cloneNode(true);
 
         gsap.set(clonWrapper, {
@@ -45,8 +45,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ScrollTrigger.create({
             trigger: ".main",
             start: "top top",
-            end: ( ) => `+=${window.innerHeight * 1.0}`, // Adjust distance as needed
-            pin: true, // Often helpful for full-screen transitions
+            end: ( ) => `+=${window.innerHeight * 1.0}`, // Ajusta distancia de ser necesario
+            pin: true, // ayuda con las transiciones
             scrub: true,
             onUpdate: (self) => {
     // 1. Sincronizar la animación de Flip con el scroll
@@ -69,3 +69,4 @@ onLeaveBack: () => {
         });
     }
 });
+
