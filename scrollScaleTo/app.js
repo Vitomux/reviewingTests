@@ -1,22 +1,38 @@
 document.addEventListener("DOMContentLoaded", (event) => {
     gsap.registerPlugin(ScrollTrigger, Flip);
 
-    const lenis = new Lenis();
+    //                Setear Lenis scroll 
+ // -----------------------------------------------//
+    
+    const lenis = new Lenis( );
     lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add((time) => {
-        lenis.raf(time * 1000);
+    gsap.ticker.add( ( time) => {
+        lenis.raf( time * 1000 );
     });
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing( 0 );
+
+
+        //            Elementos
+ // -----------------------------------------------//
 
     let flipAnimation = null;
-    const originalBox = document.querySelector(".box");
-    const clonWrapper = document.querySelector(".clonWrapper");
+    const originalBox = document.querySelector(".box"); // caja objetivo
+    const clonWrapper = document.querySelector(".clonWrapper"); // contenedor de nuestro clon
+    const space = document.querySelector(".space") // div padre
 
-    if (originalBox && clonWrapper) {
-        // 1. Setup
-        const clonnedBox = originalBox.cloneNode(true);
 
-        gsap.set(clonWrapper, {
+    //                Configuración
+ // -----------------------------------------------//
+
+    if ( originalBox && clonWrapper ) {
+        const clonnedBox = originalBox.cloneNode(true); // clonamos nuestro objetivo ().box)
+        clonWrapper.appendChild( clonnedBox ); // lo ubicamos dentro del wrapper
+        gsap.set( originalBox, { opacity: 0 } ); // desvanecemos nuestro objetivo
+        const rectSpace = space.getBoundingClientRect( ); // obtenemos coordenadas y espacialidad de nuestro div padre
+
+        // ----Configuramos desde GSAP el estado del objeto a animar ( wrapper que contiene el clon ) ----//
+
+        gsap.set( clonWrapper, { 
             position: "fixed",
             width: "48px",
             height: "48px",
@@ -25,48 +41,45 @@ document.addEventListener("DOMContentLoaded", (event) => {
             zIndex: 10,
         });
 
-        clonWrapper.appendChild(clonnedBox);
-        gsap.set(originalBox, { opacity: 0 });
+        //----- Configuramos nuestra animación con Flip y el estado de esta ---------- //
 
-        // 2. Preparar el Flip State
-        const state = Flip.getState(clonnedBox);
-        // Hacer el cambio
-        gsap.set(clonWrapper, {
+        const state = Flip.getState( clonWrapper );
+        gsap.set( clonWrapper, {
             width: "100%",
-            height: "100vh"
-        });
-        // Hacer animacion pero dejar pausada
-        flipAnimation = Flip.from(state, {
-            duration: 0.2,
+            height: rectSpace.height, // Le damos las direcciones de expansion a nuestro clon 
+            left: rectSpace.left,        // desde las coordenadas de rectSpace ( coordenadas de nuestro padre )
+            right: rectSpace.right, // asi aseguramos expansion limpia y matematicamente correcta hasta alcanzar objetivo
+            top: rectSpace.top,
+            });
+
+        flipAnimation = Flip.from( state, {
+            duration: 1,
             ease: "none",
             paused: true,
         });
-        // 3. ScrollTrigger para controlar flipAnimation
-        ScrollTrigger.create({
+
+        ScrollTrigger.create( {
             trigger: ".main",
             start: "top top",
-            end: ( ) => `+=${window.innerHeight * 1.0}`, // Ajusta distancia de ser necesario
-            pin: true, // ayuda con las transiciones
+            end: ( ) => `+=${ window.innerHeight * 1 }`, // termina la animacion una vez alcanzada la altura de la pantalla
+            pin: true,
             scrub: true,
-            onUpdate: (self) => {
-    // 1. Sincronizar la animación de Flip con el scroll
-                flipAnimation.progress(self.progress);
-
-  // 2. Lógica de intercambio de opacidad
-            if (self.progress >= 1) {
-            gsap.set(clonnedBox, { opacity: 0 });
-            gsap.set(originalBox, { opacity: 1 });
-        } else {
-            gsap.set(clonnedBox, { opacity: 1 });
-            gsap.set(originalBox, { opacity: 0 });
-        }
+            onUpdate: ( self ) => {
+                flipAnimation.progress( self.progress ); // seteamos la opacidad de nuestro clon, 
+                if ( self.progress >= 1) {                         // al encontrarse con nuestro objetivo cambian de opacidades
+                    gsap.set( clonnedBox, { opacity: 0 } );
+                    gsap.set( originalBox, { opacity: 1 } );
+                } else {
+                    gsap.set( clonnedBox, { opacity: 1 } );
+                    gsap.set( originalBox, { opacity: 0 } );
+                }
 },
-onLeaveBack: () => {
-    flipAnimation.progress(0);
-    gsap.set(clonnedBox, { opacity: 1 });
-    gsap.set(originalBox, { opacity: 0 });
+
+onLeaveBack: () => { // ------------- En caso de subir el scroll, vuelven a las opacidades originales 
+    flipAnimation.progress( 0 );
+    gsap.set( clonnedBox, { opacity: 1 } );
+    gsap.set( originalBox, { opacity: 0 } );
 }
         });
     }
-});
-
+}); 
