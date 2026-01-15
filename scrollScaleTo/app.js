@@ -41,10 +41,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
             zIndex: 10,
         });
 
+
         //----- Configuramos nuestra animación con Flip y el estado de esta ---------- //
 
-        const state = Flip.getState( clonWrapper );
-        gsap.set( clonWrapper, {
+        const state = Flip.getState( clonWrapper ); // el estado actual de nuestro clon
+
+        // seteamos el estado final
+        
+        gsap.set( clonWrapper, {   
             width: "100%",
             height: rectSpace.height, // Le damos las direcciones de expansion a nuestro clon 
             left: rectSpace.left,        // desde las coordenadas de rectSpace ( coordenadas de nuestro padre )
@@ -52,7 +56,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             top: rectSpace.top,
             });
 
-        flipAnimation = Flip.from( state, {
+        flipAnimation = Flip.from( state, {  // y las propiedades de nuestra animación Como vamos del principio al final
             duration: 1,
             ease: "none",
             paused: true,
@@ -64,11 +68,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
             end: ( ) => `+=${ window.innerHeight * 1 }`, // termina la animacion una vez alcanzada la altura de la pantalla
             pin: true,
             scrub: true,
-            onUpdate: ( self ) => {
-                flipAnimation.progress( self.progress ); // seteamos la opacidad de nuestro clon, 
-                if ( self.progress >= 1) {                         // al encontrarse con nuestro objetivo cambian de opacidades
-                    gsap.set( clonnedBox, { opacity: 0 } );
-                    gsap.set( originalBox, { opacity: 1 } );
+            onUpdate: ( self ) => {  // a medida que se actualiza el scroll, sucede nuestra animación
+                flipAnimation.progress( self.progress ); 
+                if ( self.progress >= 1) {                         
+                    gsap.set( clonnedBox, { opacity: 0 } );   // seteamos la opacidad de nuestro clon, 
+                    gsap.set( originalBox, { opacity: 1 } );   // al encontrarse con nuestro objetivo cambian de opacidades
                 } else {
                     gsap.set( clonnedBox, { opacity: 1 } );
                     gsap.set( originalBox, { opacity: 0 } );
@@ -83,3 +87,4 @@ onLeaveBack: () => { // ------------- En caso de subir el scroll, vuelven a las 
         });
     }
 }); 
+
