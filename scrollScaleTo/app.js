@@ -19,11 +19,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     if ( originalBox && clonWrapper ) {
         const clonnedBox = originalBox.cloneNode(true); // clonamos nuestro objetivo ().box)
         clonWrapper.appendChild( clonnedBox ); // lo ubicamos dentro del wrapper
-
+        const rectClon = clonWrapper.getBoundingClientRect( ); // el espacio y coordenadas que habita nuestro clon
         gsap.set( originalBox, { opacity: 0 } ); // desvanecemos nuestro objetivo
-        const rectSpace = space.getBoundingClientRect( ); // obtenemos coordenadas y espacialidad de nuestro div padre
-        const rectClon = clonWrapper.getBoundingClientRect( );
-        const rectTarget = originalBox.getBoundingClientRect( );
 
 
         gsap.set( clonWrapper, { 
@@ -38,23 +35,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
         const state = Flip.getState( clonWrapper ); // el estado actual de nuestro clon
         gsap.set( clonWrapper, {   
-                width: "100%",
-                height: rectSpace.height, // Le damos las direcciones de expansion a nuestro clon 
-                left: rectTarget.left,        // Que adopte la altura de space, que se expanda hacia los lados del target y sea empujado desde el top del clon
-                right: rectTarget.right, // asi aseguramos expansion limpia y matematicamente correcta hasta alcanzar objetivo
-                top: rectClon.top,
+                width: "100%", // Le damos las direcciones de expansion a nuestro clon 
+                height: space.offsetHeight, // crece con la altura real de su div padre
+                top: rectClon.top, // empujado por el espacio entre el top viewport y el clon
+                left: 0,
+                right: 0
         });
 
         flipAnimation = Flip.from( state, {
-                duration: 2,
+                duration: 1,
                 ease: "power3.in",
                 paused: true,
         });
 
         ScrollTrigger.create( {
                 trigger: space,
-                start: "center",
-                end: ( ) => `+=${  ( rectSpace.height * 1) - rectClon.bottom }`, // la altura de space (div padre) menos el espacio entre el fondo de nuestro clon (div hijo) y el top del viewport nos dan como resultado la distancia entre el clon y la proxima seccion (nuestro objetivo)
+                start: "center top",
+                end: ( ) => `+=${ space.offsetHeight   -  rectClon.bottom } `, // la altura completa de space (div padre) menos el espacio entre el fondo de nuestro clon (div hijo) y el top del viewport nos dan como resultado la distancia entre el clon y la proxima seccion (nuestro objetivo)
                 pin: true,
                 scrub: true,
                 markers: true,
@@ -69,10 +66,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
                     }
                 },
                 onLeaveBack: ( ) => { // ------------- En caso de subir el scroll, vuelven a las opacidades originales 
-                    flipAnimation.progress( 0 );
-                    gsap.set( clonnedBox, { opacity: 1 } );
-                    gsap.set( originalBox, { opacity: 0 } );
-                }
+                        flipAnimation.progress( 0 );
+                        gsap.set( clonnedBox, { opacity: 1 } );
+                        gsap.set( originalBox, { opacity: 0 } );
+                    }
         });
     }
 }); 
